@@ -15,6 +15,10 @@ import android.os.UserHandle
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
+import io.github.kyuubiran.ezxhelper.core.misc.paramTypes
+import io.github.kyuubiran.ezxhelper.core.misc.params
+import io.github.kyuubiran.ezxhelper.core.util.ClassUtil
+import io.github.kyuubiran.ezxhelper.core.util.ObjectUtil
 import io.relimus.zflow.BuildConfig
 import io.relimus.zflow.bean.MotionEventBean
 import io.relimus.zflow.hook.utils.XLog
@@ -22,8 +26,6 @@ import io.relimus.zflow.xposed.IFreeformManager
 import io.relimus.zflow.xposed.ui.window.FreeformWindow
 import io.relimus.zflow.xposed.ui.window.FreeformWindowConfig
 import io.relimus.zflow.xposed.utils.Instances
-import io.relimus.zflow.xposed.utils.ReflectUtils.invokeMethodAs
-import io.relimus.zflow.xposed.utils.ReflectUtils.newInstance
 
 /**
  * Core FreeformManager service running in system_server.
@@ -283,10 +285,11 @@ object FreeformManager : IFreeformManager.Stub() {
                     InputDevice.SOURCE_TOUCHSCREEN,
                     0
                 )
-                motionEvent.invokeMethodAs(
-                    "setDisplayId",
-                    arrayOf(Int::class.javaPrimitiveType!!),
-                    displayId
+                ObjectUtil.invokeMethod(
+                    obj = motionEvent,
+                    methodName = "setDisplayId",
+                    paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                    params = params(displayId)
                 )
                 Instances.inputManager.injectInputEvent(motionEvent, 0)
                 motionEvent.recycle()
@@ -301,28 +304,32 @@ object FreeformManager : IFreeformManager.Stub() {
             try {
                 val downTime = SystemClock.uptimeMillis()
                 val downEvent = KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN, keyCode, 0)
-                downEvent.invokeMethodAs(
-                    "setSource",
-                    arrayOf(Int::class.javaPrimitiveType!!),
-                    InputDevice.SOURCE_KEYBOARD
+                ObjectUtil.invokeMethod(
+                    obj = downEvent,
+                    methodName = "setSource",
+                    paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                    params = params(InputDevice.SOURCE_KEYBOARD)
                 )
-                downEvent.invokeMethodAs(
-                    "setDisplayId",
-                    arrayOf(Int::class.javaPrimitiveType!!),
-                    displayId
+                ObjectUtil.invokeMethod(
+                    obj = downEvent,
+                    methodName = "setDisplayId",
+                    paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                    params = params(displayId)
                 )
                 Instances.inputManager.injectInputEvent(downEvent, 0)
 
                 val upEvent = KeyEvent(downTime, SystemClock.uptimeMillis(), KeyEvent.ACTION_UP, keyCode, 0)
-                upEvent.invokeMethodAs(
-                    "setSource",
-                    arrayOf(Int::class.javaPrimitiveType!!),
-                    InputDevice.SOURCE_KEYBOARD
+                ObjectUtil.invokeMethod(
+                    obj = upEvent,
+                    methodName = "setSource",
+                    paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                    params = params(InputDevice.SOURCE_KEYBOARD)
                 )
-                upEvent.invokeMethodAs(
-                    "setDisplayId",
-                    arrayOf(Int::class.javaPrimitiveType!!),
-                    displayId
+                ObjectUtil.invokeMethod(
+                    obj = upEvent,
+                    methodName = "setDisplayId",
+                    paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                    params = params(displayId)
                 )
                 Instances.inputManager.injectInputEvent(upEvent, 0)
             } catch (e: Exception) {
@@ -354,21 +361,24 @@ object FreeformManager : IFreeformManager.Stub() {
                 }
                 val options = ActivityOptions.makeBasic().apply {
                     launchDisplayId = displayId
-                    invokeMethodAs(
-                        "setCallerDisplayId",
-                        arrayOf(Int::class.javaPrimitiveType!!),
-                        displayId
+                    ObjectUtil.invokeMethod(
+                        obj = this,
+                        methodName = "setCallerDisplayId",
+                        paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                        params = params(displayId)
                     )
                 }.toBundle()
-                val userHandle = UserHandle::class.java.newInstance<UserHandle>(
-                    arrayOf(Int::class.javaPrimitiveType!!),
-                    userId
-                )
+                val userHandle = ClassUtil.newInstance(
+                    clz = UserHandle::class.java,
+                    paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                    params = params(userId)
+                ) as UserHandle
 
-                Instances.systemContext.invokeMethodAs(
-                    "startActivityAsUser",
-                    arrayOf(Intent::class.java, Bundle::class.java, UserHandle::class.java),
-                    intent, options, userHandle
+                ObjectUtil.invokeMethod(
+                    obj = Instances.systemContext,
+                    methodName = "startActivityAsUser",
+                    paramTypes = paramTypes(Intent::class.java, Bundle::class.java, UserHandle::class.java),
+                    params = params(intent, options, userHandle)
                 )
             } catch (e: Exception) {
                 XLog.e("$TAG: Failed to start activity $componentName", e)

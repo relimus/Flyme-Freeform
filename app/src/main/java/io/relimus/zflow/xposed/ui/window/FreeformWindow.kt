@@ -36,6 +36,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
 import com.qauxv.ui.CommonContextWrapper
+import dev.rikka.tools.refine.Refine
+import io.github.kyuubiran.ezxhelper.core.misc.paramTypes
+import io.github.kyuubiran.ezxhelper.core.misc.params
+import io.github.kyuubiran.ezxhelper.core.util.ObjectUtil
 import io.relimus.zflow.BuildConfig
 import io.relimus.zflow.R
 import io.relimus.zflow.databinding.ViewFreeformFlymeBinding
@@ -43,8 +47,6 @@ import io.relimus.zflow.hook.utils.XLog
 import io.relimus.zflow.ui.freeform.FreeformHelper
 import io.relimus.zflow.xposed.services.FreeformManager
 import io.relimus.zflow.xposed.utils.Instances
-import io.relimus.zflow.xposed.utils.ReflectUtils.invokeMethodAs
-import dev.rikka.tools.refine.Refine
 import java.lang.reflect.Field
 import kotlin.math.abs
 import kotlin.math.max
@@ -1503,10 +1505,11 @@ class FreeformWindow(
             matrix.setScale(1f / scaleX, 1f / scaleY)
             newEvent.transform(matrix)
 
-            newEvent.invokeMethodAs(
-                "setDisplayId",
-                arrayOf(Int::class.javaPrimitiveType!!),
-                displayId
+            ObjectUtil.invokeMethod(
+                obj = newEvent,
+                methodName = "setDisplayId",
+                paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                params = params(displayId)
             )
             Instances.inputManager.injectInputEvent(newEvent, 0)
             newEvent.recycle()
@@ -1526,15 +1529,17 @@ class FreeformWindow(
                 KeyEvent.ACTION_DOWN,
                 KeyEvent.KEYCODE_BACK, 0
             )
-            downEvent.invokeMethodAs(
-                "setSource",
-                arrayOf(Int::class.javaPrimitiveType!!),
-                InputDevice.SOURCE_KEYBOARD
+            ObjectUtil.invokeMethod(
+                obj = downEvent,
+                methodName = "setSource",
+                paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                params = params(InputDevice.SOURCE_KEYBOARD)
             )
-            downEvent.invokeMethodAs(
-                "setDisplayId",
-                arrayOf(Int::class.javaPrimitiveType!!),
-                displayId
+            ObjectUtil.invokeMethod(
+                obj = downEvent,
+                methodName = "setDisplayId",
+                paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                params = params(displayId)
             )
             Instances.inputManager.injectInputEvent(downEvent, 0)
 
@@ -1543,15 +1548,17 @@ class FreeformWindow(
                 KeyEvent.ACTION_UP,
                 KeyEvent.KEYCODE_BACK, 0
             )
-            upEvent.invokeMethodAs(
-                "setSource",
-                arrayOf(Int::class.javaPrimitiveType!!),
-                InputDevice.SOURCE_KEYBOARD
+            ObjectUtil.invokeMethod(
+                obj = upEvent,
+                methodName = "setSource",
+                paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                params = params(InputDevice.SOURCE_KEYBOARD)
             )
-            upEvent.invokeMethodAs(
-                "setDisplayId",
-                arrayOf(Int::class.javaPrimitiveType!!),
-                displayId
+            ObjectUtil.invokeMethod(
+                obj = upEvent,
+                methodName = "setDisplayId",
+                paramTypes = paramTypes(Int::class.javaPrimitiveType),
+                params = params(displayId)
             )
             Instances.inputManager.injectInputEvent(upEvent, 0)
         } catch (e: Exception) {
